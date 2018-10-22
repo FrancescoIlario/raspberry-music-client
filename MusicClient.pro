@@ -37,8 +37,7 @@ SOURCES += \
         classes/Song.cpp \
         models/ArtistViewModel.cpp \
         models/AlbumViewModel.cpp \
-        models/SongViewModel.cpp \
-    ui/AlbumFrame.cpp
+        models/SongViewModel.cpp
 
 HEADERS += \
         MainWindow.hpp \
@@ -51,12 +50,10 @@ HEADERS += \
         rest/MusicServer.hpp \
         models/ArtistViewModel.hpp \
         models/AlbumViewModel.hpp \
-        models/SongViewModel.hpp \
-    ui/AlbumFrame.hpp
+        models/SongViewModel.hpp
 
 FORMS += \
-        MainWindow.ui \
-        ui/AlbumFrame.ui
+        MainWindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

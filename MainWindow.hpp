@@ -16,7 +16,6 @@
 #include <vector>
 
 #include "ui_MainWindow.h"
-#include <ui/AlbumFrame.hpp>
 
 #include "rest/MusicServer.hpp"
 #include <classes/Album.hpp>

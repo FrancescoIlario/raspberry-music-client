@@ -57,8 +57,8 @@ MainWindow::MainWindow(QWidget *parent)
         auto _d = static_cast<int>(duration);
         if (duration == _d) {
           this->ui->horizontalSlider->setMaximum(_d);
-            QTime time{0, 0, 0, 0};
-            time = time.addMSecs(_d);
+          QTime time{0, 0, 0, 0};
+          time = time.addMSecs(_d);
           QString time_representation = (time.hour() == 0)
                                             ? time.toString("mm:ss")
                                             : time.toString("HH:mm:ss");
@@ -67,21 +67,26 @@ MainWindow::MainWindow(QWidget *parent)
       });
 
   // Label Signal
-  QObject::connect(&this->player_, &QMediaPlayer::mediaChanged, this, [&]() {
-    auto playlist = this->player_.playlist();
-    if (playlist) {
-      auto current_index = playlist->currentIndex();
-      Song song = this->playlistSongs_.at(current_index);
-      QString text{};
-      text = text.append(song.artist().name().c_str())
-                 .append(" - ")
-                 .append(song.album().title().c_str())
-                 .append(" - ")
-                 .append(song.title().c_str());
+  QObject::connect(&this->player_, &QMediaPlayer::stateChanged, this,
+                   [&](QMediaPlayer::State state) {
+                     if (state == QMediaPlayer::State::PlayingState) {
+                       auto playlist = this->player_.playlist();
+                       auto current_index = playlist->currentIndex();
+                       if (playlist && current_index >= 0) {
+                         Song song = this->playlistSongs_.at(current_index);
+                         QString text{};
+                         text = text.append(song.artist().name().c_str())
+                                    .append(" - ")
+                                    .append(song.album().title().c_str())
+                                    .append(" - ")
+                                    .append(song.title().c_str());
 
-      this->ui->playingSongLabel->setText(text);
-    }
-  });
+                         this->ui->playingSongLabel->setText(text);
+                       }
+                     } else if (state == QMediaPlayer::State::StoppedState) {
+                       this->ui->playingSongLabel->setText("");
+                     }
+                   });
 
   // ask for Artists list
   auto manager = new QNetworkAccessManager();
@@ -155,7 +160,7 @@ void MainWindow::playSong(const QModelIndex &index) {
     auto playlist = new QMediaPlaylist{this};
     QList<QMediaContent> contents;
     this->playlistSongs_.clear();
-    for (auto song : model->getSongs()) {
+    for (auto song : model->getSongs(index.row())) {
       QUrl url;
       url.setHost(SERVER_NAME);
       url.setPath(QString{"/song/%1"}.arg(QString::number(song.id())));
@@ -169,7 +174,6 @@ void MainWindow::playSong(const QModelIndex &index) {
       this->playlistSongs_.push_back(song);
     }
     playlist->addMedia(contents);
-    playlist->setCurrentIndex(index.row());
 
     this->player_.setPlaylist(playlist);
     this->player_.play();
